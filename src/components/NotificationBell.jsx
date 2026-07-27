@@ -51,7 +51,7 @@ export default function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2.5 bg-neutral-900/80 hover:bg-neutral-800 text-neutral-300 hover:text-white rounded-xl transition-all border border-white/10 shadow-lg"
+        className="relative p-2.5 bg-neutral-900/80 hover:bg-neutral-800 text-neutral-300 hover:text-white rounded-xl transition-all border border-white/10 shadow-lg cursor-pointer"
       >
         <Bell size={18} />
         {unreadCount > 0 && (
@@ -68,7 +68,7 @@ export default function NotificationBell() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-3 w-80 glass-card border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden"
+            className="absolute right-0 mt-3 w-80 glass-card border-white/10 rounded-2xl shadow-2xl z-[100] overflow-hidden"
           >
             <div className="p-4 border-b border-white/5 bg-neutral-950/80 backdrop-blur-md flex items-center justify-between">
               <h3 className="font-bold text-sm text-white tracking-tight">

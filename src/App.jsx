@@ -36,13 +36,14 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0a09] text-neutral-100 p-4 sm:p-6 font-sans selection:bg-orange-500 selection:text-white relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#0b0a09] text-neutral-100 p-4 sm:p-6 font-sans selection:bg-orange-500 selection:text-white relative">
       {/* Background Ambient Glow Effects */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/3 right-10 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="w-full max-w-[1400px] mx-auto relative z-10">
-        <header className="mb-6 glass-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-white/10 shadow-2xl">
+        {/* Added explicit z-40 relative layer to header so the notification dropdown renders above the rest of page content */}
+        <header className="mb-6 glass-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-white/10 shadow-2xl relative z-40">
           <div className="flex items-center gap-3.5">
             <div className="p-2.5 bg-gradient-to-tr from-orange-500/20 to-[#ff7f50]/20 rounded-xl border border-orange-500/30 shadow-lg shadow-orange-500/10">
               <ShieldCheck size={26} className="text-[#ff7f50]" />
@@ -74,7 +75,6 @@ export default function App() {
 
         <DashboardMetrics />
 
-        {/* Balanced Two-Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6 items-start w-full">
           {/* Left Column (Primary Workflow: Form & Active Subscriptions) */}
           <div className="lg:col-span-7 flex flex-col gap-5 w-full min-w-0">
@@ -84,7 +84,6 @@ export default function App() {
             <SubscriptionList />
           </div>
 
-          {/* Right Column (Analytics, Insights & Settings Sidebar) */}
           <div className="lg:col-span-5 flex flex-col gap-5 w-full min-w-0">
             <UserProfile />
             <QuickPresets />

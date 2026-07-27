@@ -15,8 +15,10 @@ export default function TrialBanner() {
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mb-8 bg-gradient-to-r from-orange-500/10 via-[#ff7f50]/10 to-orange-500/10 border border-orange-500/30 rounded-2xl p-5 flex items-center justify-between gap-4 shadow-2xl backdrop-blur-md relative overflow-hidden"
+      // REMOVED "overflow-hidden" so absolute elements or dropdowns don't clip against it
+      className="mb-8 bg-gradient-to-r from-orange-500/10 via-[#ff7f50]/10 to-orange-500/10 border border-orange-500/30 rounded-2xl p-5 flex items-center justify-between gap-4 shadow-2xl backdrop-blur-md relative"
     >
+      {/* Changed background blur blob to use overflow-visible safe styling */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-2xl pointer-events-none" />
 
       <div className="flex items-center gap-3.5">
