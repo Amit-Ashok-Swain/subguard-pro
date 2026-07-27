@@ -1,16 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addSubscription } from "./subscriptionSlice";
+import { 
+  addSubscription, 
+  updateSubscription, 
+  setEditingItem 
+} from "./subscriptionSlice";
 import {
   PlusCircle,
   SlidersHorizontal,
   ChevronDown,
   ChevronUp,
+  Pencil,
+  X,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
 export default function SubscriptionForm() {
   const dispatch = useDispatch();
+  
+  const editingItem = useSelector((state) => state.subscriptions?.editingItem);
+
   const categories = useSelector((state) => state.ui?.categories) || [
     "Entertainment",
     "Software",
@@ -36,6 +45,22 @@ export default function SubscriptionForm() {
   const [notes, setNotes] = useState("");
   const [isTrial, setIsTrial] = useState(false);
 
+  useEffect(() => {
+    if (editingItem) {
+      setName(editingItem.name || "");
+      setCost(editingItem.cost ? editingItem.cost.toString() : "");
+      setCategory(editingItem.category || categories[0]);
+      setPaymentMethod(editingItem.paymentMethod || "Credit Card");
+      setStatus(editingItem.status || "Active");
+      setRenewalDate(editingItem.renewalDate || "");
+      setTags(Array.isArray(editingItem.tags) ? editingItem.tags.join(", ") : "");
+      setPasswordHint(editingItem.passwordHint || "");
+      setNotes(editingItem.notes || "");
+      setIsTrial(!!editingItem.isTrial);
+      setShowAdvanced(true); // Auto-open advanced fields during edit if needed
+    }
+  }, [editingItem, categories]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!name || !cost) {
@@ -43,29 +68,52 @@ export default function SubscriptionForm() {
       return;
     }
 
-    const newSub = {
-      id: Date.now().toString(),
-      name,
-      cost: parseFloat(cost),
-      currency: currency.code,
-      category,
-      paymentMethod,
-      status,
-      renewalDate: renewalDate || new Date().toISOString().split("T")[0],
-      tags: tags
-        ? tags
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean)
-        : [],
-      passwordHint,
-      notes,
-      isTrial,
-    };
+    const parsedCost = parseFloat(cost);
+    const formattedTags = tags
+      ? tags.split(",").map((t) => t.trim()).filter(Boolean)
+      : [];
+    const formattedDate = renewalDate || new Date().toISOString().split("T")[0];
 
-    dispatch(addSubscription(newSub));
-    toast.success(`Added ${name} successfully!`);
+    if (editingItem) {
+      dispatch(
+        updateSubscription({
+          ...editingItem,
+          name,
+          cost: parsedCost,
+          category,
+          paymentMethod,
+          status,
+          renewalDate: formattedDate,
+          tags: formattedTags,
+          passwordHint,
+          notes,
+          isTrial,
+        })
+      );
+      toast.success(`Updated ${name} successfully!`);
+    } else {
+      const newSub = {
+        id: Date.now().toString(),
+        name,
+        cost: parsedCost,
+        currency: currency.code,
+        category,
+        paymentMethod,
+        status,
+        renewalDate: formattedDate,
+        tags: formattedTags,
+        passwordHint,
+        notes,
+        isTrial,
+      };
+      dispatch(addSubscription(newSub));
+      toast.success(`Added ${name} successfully!`);
+    }
 
+    handleResetForm();
+  };
+
+  const handleResetForm = () => {
     setName("");
     setCost("");
     setRenewalDate("");
@@ -74,6 +122,7 @@ export default function SubscriptionForm() {
     setNotes("");
     setIsTrial(false);
     setShowAdvanced(false);
+    dispatch(setEditingItem(null));
   };
 
   return (
@@ -83,22 +132,41 @@ export default function SubscriptionForm() {
       <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/5">
         <div>
           <h2 className="text-lg font-extrabold text-white tracking-tight flex items-center gap-2.5">
-            <PlusCircle size={20} className="text-[#ff7f50]" />
-            Add New Subscription
+            {editingItem ? (
+              <>
+                <Pencil size={20} className="text-orange-400" /> Edit Subscription
+              </>
+            ) : (
+              <>
+                <PlusCircle size={20} className="text-[#ff7f50]" /> Add New Subscription
+              </>
+            )}
           </h2>
           <p className="text-xs text-neutral-400 font-medium mt-0.5">
-            Track recurring expenses and trial periods
+            {editingItem ? `Updating details for ${editingItem.name}` : "Track recurring expenses and trial periods"}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className="text-xs flex items-center gap-1.5 text-orange-400 bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 px-3.5 py-2 rounded-xl font-semibold transition-all shadow-sm cursor-pointer"
-        >
-          <SlidersHorizontal size={14} />
-          {showAdvanced ? "Hide Advanced" : "Check Advanced Fields"}
-          {showAdvanced ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-        </button>
+        
+        <div className="flex items-center gap-2">
+          {editingItem && (
+            <button
+              type="button"
+              onClick={handleResetForm}
+              className="text-xs flex items-center gap-1 text-neutral-300 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 px-3 py-2 rounded-xl font-semibold transition-all cursor-pointer"
+            >
+              <X size={14} /> Cancel
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="text-xs flex items-center gap-1.5 text-orange-400 bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 px-3.5 py-2 rounded-xl font-semibold transition-all shadow-sm cursor-pointer"
+          >
+            <SlidersHorizontal size={14} />
+            {showAdvanced ? "Hide Advanced" : "Check Advanced Fields"}
+            {showAdvanced ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -160,21 +228,11 @@ export default function SubscriptionForm() {
               onChange={(e) => setPaymentMethod(e.target.value)}
               className="w-full glass-input px-4 py-3 text-sm cursor-pointer"
             >
-              <option value="Credit Card" className="bg-neutral-900">
-                Credit Card
-              </option>
-              <option value="PayPal" className="bg-neutral-900">
-                PayPal
-              </option>
-              <option value="Apple Pay" className="bg-neutral-900">
-                Apple Pay
-              </option>
-              <option value="Bank Transfer" className="bg-neutral-900">
-                Bank Transfer
-              </option>
-              <option value="Crypto" className="bg-neutral-900">
-                Crypto
-              </option>
+              <option value="Credit Card" className="bg-neutral-900">Credit Card</option>
+              <option value="PayPal" className="bg-neutral-900">PayPal</option>
+              <option value="Apple Pay" className="bg-neutral-900">Apple Pay</option>
+              <option value="Bank Transfer" className="bg-neutral-900">Bank Transfer</option>
+              <option value="Crypto" className="bg-neutral-900">Crypto</option>
             </select>
           </div>
         </div>
@@ -189,15 +247,9 @@ export default function SubscriptionForm() {
               onChange={(e) => setStatus(e.target.value)}
               className="w-full glass-input px-4 py-3 text-sm cursor-pointer"
             >
-              <option value="Active" className="bg-neutral-900">
-                Active
-              </option>
-              <option value="Paused" className="bg-neutral-900">
-                Paused
-              </option>
-              <option value="Cancelled" className="bg-neutral-900">
-                Cancelled
-              </option>
+              <option value="Active" className="bg-neutral-900">Active</option>
+              <option value="Paused" className="bg-neutral-900">Paused</option>
+              <option value="Cancelled" className="bg-neutral-900">Cancelled</option>
             </select>
           </div>
 
@@ -214,7 +266,6 @@ export default function SubscriptionForm() {
           </div>
         </div>
 
-        {/* Collapsible Advanced Fields Section */}
         {showAdvanced && (
           <div className="mt-1 p-5 rounded-2xl bg-neutral-950/80 border border-orange-500/30 flex flex-col gap-4 animate-fadeIn shadow-inner">
             <div className="text-xs font-bold text-orange-400 uppercase tracking-wider flex items-center gap-1.5">
@@ -280,7 +331,15 @@ export default function SubscriptionForm() {
           type="submit"
           className="w-full mt-2 bg-gradient-to-r from-orange-500 to-[#ff7f50] hover:from-orange-600 hover:to-orange-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-xl shadow-orange-500/20 active:scale-[0.99] text-sm flex items-center justify-center gap-2 cursor-pointer"
         >
-          <PlusCircle size={18} /> Add to Tracker
+          {editingItem ? (
+            <>
+              <Pencil size={18} /> Update Subscription
+            </>
+          ) : (
+            <>
+              <PlusCircle size={18} /> Add to Tracker
+            </>
+          )}
         </button>
       </form>
     </div>
