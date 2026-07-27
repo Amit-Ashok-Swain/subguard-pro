@@ -105,4 +105,4 @@ Developed as part of an independent learning challenge to master Redux Toolkit a
 
 ## 📝 License
 
-This project is open-source and available under the [MIT License](https://www.google.com/search?q=LICENSE).
+This project is open-source and available under the [MIT License](https://github.com/Amit-Ashok-Swain/subguard-pro#MIT-1-ov-file).
