@@ -93,7 +93,7 @@ SubGuard Pro leverages modern Redux Toolkit patterns to maintain clean, scalable
 
 ## 📄 Documentation
 
-For a comprehensive, step-by-step educational breakdown of how this project was engineered from scratch, check out the [Project Documentation](https://amitashokswain7.substack.com/p/the-ultimate-redux-toolkit-guide?r=70u05e&utm_campaign=post&utm_medium=web&triedRedirect=true).
+For a comprehensive, step-by-step educational breakdown of how this project was engineered from scratch, check out the [Project Documentation](https://github.com/Amit-Ashok-Swain/subguard-pro/blob/main/project-steps.md).
 
 ---
 
