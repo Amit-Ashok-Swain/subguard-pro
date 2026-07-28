@@ -68,9 +68,9 @@ export default function NotificationBell() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-3 w-80 glass-card border-white/10 rounded-2xl shadow-2xl z-[100] overflow-hidden"
+            className="absolute right-0 mt-3 w-72 sm:w-80 bg-[#121212] border border-neutral-700/50 rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.8)] z-[100] overflow-hidden"
           >
-            <div className="p-4 border-b border-white/5 bg-neutral-950/80 backdrop-blur-md flex items-center justify-between">
+            <div className="p-4 border-b border-neutral-800 bg-[#121212] flex items-center justify-between">
               <h3 className="font-bold text-sm text-white tracking-tight">
                 Notifications
               </h3>
@@ -79,7 +79,7 @@ export default function NotificationBell() {
               </span>
             </div>
 
-            <div className="max-h-80 overflow-y-auto">
+            <div className="max-h-80 overflow-y-auto bg-[#121212]">
               {unreadCount === 0 ? (
                 <div className="p-8 text-center text-neutral-500 text-xs font-medium">
                   <Bell
@@ -93,7 +93,7 @@ export default function NotificationBell() {
                   {activeAlerts.map((alert) => (
                     <div
                       key={alert.id}
-                      className="p-4 border-b border-white/5 hover:bg-neutral-900/50 transition-colors flex gap-3.5 items-start"
+                      className="p-4 border-b border-neutral-800 hover:bg-neutral-900 transition-colors flex gap-3.5 items-start"
                     >
                       <div
                         className={`mt-0.5 flex-shrink-0 p-2 rounded-xl border ${alert.type === "overdue" ? "bg-red-500/15 text-red-400 border-red-500/30" : "bg-orange-500/15 text-orange-400 border-orange-500/30"}`}

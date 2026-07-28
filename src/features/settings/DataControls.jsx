@@ -54,6 +54,7 @@ export default function DataControls() {
       "Name",
       "Cost",
       "Currency",
+      "Billing Cycle",
       "Category",
       "Payment Method",
       "Status",
@@ -65,6 +66,7 @@ export default function DataControls() {
       `"${sub.name || ""}"`,
       sub.cost || 0,
       `"${sub.currency || "USD"}"`,
+      `"${sub.billingCycle || "Monthly"}"`,
       `"${sub.category || ""}"`,
       `"${sub.paymentMethod || ""}"`,
       `"${sub.status || "Active"}"`,
@@ -136,13 +138,13 @@ export default function DataControls() {
             dispatch(setCurrency(selected));
             toast.info(`Currency switched to ${selected.code}`);
           }}
-          className="w-full glass-input px-4 py-2.5 text-sm cursor-pointer"
+          className="w-full glass-input px-4 py-2.5 text-sm cursor-pointer appearance-none outline-none focus:ring-2 focus:ring-orange-500/50 bg-[#121212] text-white border border-white/10"
         >
           {CURRENCIES.map((curr) => (
             <option
               key={curr.code}
               value={curr.code}
-              className="bg-neutral-900"
+              className="bg-[#121212] text-white p-2"
             >
               {curr.code} ({curr.symbol}) - {curr.name}
             </option>

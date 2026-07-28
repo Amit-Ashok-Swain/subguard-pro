@@ -17,6 +17,7 @@ import {
   Lock,
   Eye,
   EyeOff,
+  RefreshCcw,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
@@ -33,10 +34,27 @@ export default function SubscriptionCard({ sub, index }) {
   const isYearly = useSelector((state) => state.ui?.isYearlyView);
   const [showPassword, setShowPassword] = useState(false);
 
-  const displayCost = isYearly ? sub.cost * 12 : sub.cost;
+  const getAnnualCost = () => {
+    const base = sub.cost || 0;
+    switch (sub.billingCycle) {
+      case "Annually":
+        return base;
+      case "Semi-Annually":
+        return base * 2;
+      case "Quarterly":
+        return base * 4;
+      case "Monthly":
+      default:
+        return base * 12;
+    }
+  };
+
+  const annualCost = getAnnualCost();
+  const displayCost = isYearly ? annualCost : annualCost / 12;
   const currencySymbol = CURRENCY_SYMBOLS[sub.currency] || "$";
   const displayLabel = isYearly ? "/yr" : "/mo";
   const status = sub.status || "Active";
+  const billingCycle = sub.billingCycle || "Monthly";
 
   const handleDelete = () => {
     dispatch(deleteSubscription(sub.id));
@@ -111,6 +129,10 @@ export default function SubscriptionCard({ sub, index }) {
               {sub.category}
             </span>
 
+            <span className="flex items-center gap-1 text-[11px] bg-neutral-900/90 text-neutral-300 border border-white/5 px-2.5 py-1 rounded-lg font-medium">
+              <RefreshCcw size={11} /> {billingCycle}
+            </span>
+
             {sub.paymentMethod && (
               <span className="flex items-center gap-1 text-[11px] bg-neutral-900/90 text-neutral-400 border border-white/5 px-2.5 py-1 rounded-lg">
                 <CreditCard size={11} /> {sub.paymentMethod}
@@ -144,7 +166,13 @@ export default function SubscriptionCard({ sub, index }) {
               </span>
             </p>
             <span className="text-[10px] text-neutral-500 font-semibold uppercase tracking-wider">
-              {sub.currency || "USD"}
+              {sub.currency || "USD"} • {currencySymbol}
+              {(sub.cost || 0).toFixed(2)}/
+              {billingCycle === "Monthly"
+                ? "mo"
+                : billingCycle === "Annually"
+                  ? "yr"
+                  : "cycle"}
             </span>
           </div>
 

@@ -2,7 +2,8 @@ import { useSelector } from "react-redux";
 import { DollarSign, Zap, Calendar, TrendingUp } from "lucide-react";
 
 export default function DashboardMetrics() {
-  const subscriptions = useSelector((state) => state.subscriptions.items) || [];
+  const subscriptions =
+    useSelector((state) => state.subscriptions?.items) || [];
   const isYearly = useSelector((state) => state.ui?.isYearlyView);
   const currency = useSelector((state) => state.ui?.currency) || {
     symbol: "$",
@@ -12,22 +13,37 @@ export default function DashboardMetrics() {
   const activeSubs = subscriptions.filter(
     (sub) => !sub.status || sub.status === "Active",
   );
+
+  const getMonthlyCost = (sub) => {
+    const cost = sub.cost || 0;
+    switch (sub.billingCycle) {
+      case "Annually":
+        return cost / 12;
+      case "Semi-Annually":
+        return cost / 6;
+      case "Quarterly":
+        return cost / 3;
+      case "Monthly":
+      default:
+        return cost;
+    }
+  };
+
   const totalMonthlyCost = activeSubs.reduce(
-    (total, sub) => total + (sub.cost || 0),
+    (total, sub) => total + getMonthlyCost(sub),
     0,
   );
-  const totalYearlyCost = totalMonthlyCost * 12;
 
-  const baseTotal = isYearly ? totalYearlyCost : totalMonthlyCost;
-  const displayTotal = baseTotal * currency.multiplier;
+  const timeMultiplier = isYearly ? 12 : 1;
+  const displayTotal = totalMonthlyCost * timeMultiplier * currency.multiplier;
 
   const activeTrials = activeSubs.filter((sub) => sub.isTrial).length;
   const activePlans = activeSubs.length;
 
-  const highestSub = activeSubs.reduce(
-    (prev, current) => (prev && prev.cost > current.cost ? prev : current),
-    null,
-  );
+  const highestSub = activeSubs.reduce((prev, current) => {
+    if (!prev) return current;
+    return getMonthlyCost(prev) > getMonthlyCost(current) ? prev : current;
+  }, null);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -98,7 +114,7 @@ export default function DashboardMetrics() {
         </div>
         <p className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
           {highestSub
-            ? `${currency.symbol}${(highestSub.cost * currency.multiplier).toFixed(2)}`
+            ? `${currency.symbol}${(getMonthlyCost(highestSub) * timeMultiplier * currency.multiplier).toFixed(2)}`
             : `${currency.symbol}0.00`}
         </p>
         <p className="text-xs text-neutral-500 mt-1 font-medium truncate">

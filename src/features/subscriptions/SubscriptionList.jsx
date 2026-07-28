@@ -10,6 +10,21 @@ export default function SubscriptionList() {
   const categoryFilter = ui.categoryFilter || "All";
   const sortBy = ui.sortBy || "Recently Added";
 
+  const getMonthlyCost = (sub) => {
+    const cost = sub.cost || 0;
+    switch (sub.billingCycle) {
+      case "Annually":
+        return cost / 12;
+      case "Semi-Annually":
+        return cost / 6;
+      case "Quarterly":
+        return cost / 3;
+      case "Monthly":
+      default:
+        return cost;
+    }
+  };
+
   const filteredSubscriptions = subscriptions.filter((sub) => {
     const matchesSearch = sub.name
       .toLowerCase()
@@ -22,9 +37,9 @@ export default function SubscriptionList() {
   const sortedSubscriptions = [...filteredSubscriptions].sort((a, b) => {
     switch (sortBy) {
       case "Price: High to Low":
-        return b.cost - a.cost;
+        return getMonthlyCost(b) - getMonthlyCost(a);
       case "Price: Low to High":
-        return a.cost - b.cost;
+        return getMonthlyCost(a) - getMonthlyCost(b);
       case "Name: A to Z":
         return a.name.localeCompare(b.name);
       case "Recently Added":

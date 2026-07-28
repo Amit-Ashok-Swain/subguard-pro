@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { 
-  addSubscription, 
-  updateSubscription, 
-  setEditingItem 
+import {
+  addSubscription,
+  updateSubscription,
+  setEditingItem,
 } from "./subscriptionSlice";
 import {
   PlusCircle,
@@ -17,7 +17,7 @@ import { toast } from "react-toastify";
 
 export default function SubscriptionForm() {
   const dispatch = useDispatch();
-  
+
   const editingItem = useSelector((state) => state.subscriptions?.editingItem);
 
   const categories = useSelector((state) => state.ui?.categories) || [
@@ -33,12 +33,11 @@ export default function SubscriptionForm() {
 
   const [name, setName] = useState("");
   const [cost, setCost] = useState("");
+  const [billingCycle, setBillingCycle] = useState("Monthly");
   const [category, setCategory] = useState(categories[0] || "Entertainment");
   const [paymentMethod, setPaymentMethod] = useState("Credit Card");
   const [status, setStatus] = useState("Active");
   const [renewalDate, setRenewalDate] = useState("");
-
-  // Advanced fields state & toggle button
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [tags, setTags] = useState("");
   const [passwordHint, setPasswordHint] = useState("");
@@ -49,15 +48,18 @@ export default function SubscriptionForm() {
     if (editingItem) {
       setName(editingItem.name || "");
       setCost(editingItem.cost ? editingItem.cost.toString() : "");
+      setBillingCycle(editingItem.billingCycle || "Monthly");
       setCategory(editingItem.category || categories[0]);
       setPaymentMethod(editingItem.paymentMethod || "Credit Card");
       setStatus(editingItem.status || "Active");
       setRenewalDate(editingItem.renewalDate || "");
-      setTags(Array.isArray(editingItem.tags) ? editingItem.tags.join(", ") : "");
+      setTags(
+        Array.isArray(editingItem.tags) ? editingItem.tags.join(", ") : "",
+      );
       setPasswordHint(editingItem.passwordHint || "");
       setNotes(editingItem.notes || "");
       setIsTrial(!!editingItem.isTrial);
-      setShowAdvanced(true); // Auto-open advanced fields during edit if needed
+      setShowAdvanced(true);
     }
   }, [editingItem, categories]);
 
@@ -70,7 +72,10 @@ export default function SubscriptionForm() {
 
     const parsedCost = parseFloat(cost);
     const formattedTags = tags
-      ? tags.split(",").map((t) => t.trim()).filter(Boolean)
+      ? tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean)
       : [];
     const formattedDate = renewalDate || new Date().toISOString().split("T")[0];
 
@@ -80,6 +85,7 @@ export default function SubscriptionForm() {
           ...editingItem,
           name,
           cost: parsedCost,
+          billingCycle,
           category,
           paymentMethod,
           status,
@@ -88,7 +94,7 @@ export default function SubscriptionForm() {
           passwordHint,
           notes,
           isTrial,
-        })
+        }),
       );
       toast.success(`Updated ${name} successfully!`);
     } else {
@@ -97,6 +103,7 @@ export default function SubscriptionForm() {
         name,
         cost: parsedCost,
         currency: currency.code,
+        billingCycle,
         category,
         paymentMethod,
         status,
@@ -116,6 +123,7 @@ export default function SubscriptionForm() {
   const handleResetForm = () => {
     setName("");
     setCost("");
+    setBillingCycle("Monthly");
     setRenewalDate("");
     setTags("");
     setPasswordHint("");
@@ -126,33 +134,37 @@ export default function SubscriptionForm() {
   };
 
   return (
-    <div className="glass-card p-8 border-white/10 shadow-2xl relative overflow-hidden">
+    <div className="glass-card p-5 sm:p-8 border-white/10 shadow-2xl relative overflow-hidden">
       <div className="absolute top-0 right-0 w-40 h-40 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 pb-4 border-b border-white/5 gap-4">
         <div>
           <h2 className="text-lg font-extrabold text-white tracking-tight flex items-center gap-2.5">
             {editingItem ? (
               <>
-                <Pencil size={20} className="text-orange-400" /> Edit Subscription
+                <Pencil size={20} className="text-orange-400" /> Edit
+                Subscription
               </>
             ) : (
               <>
-                <PlusCircle size={20} className="text-[#ff7f50]" /> Add New Subscription
+                <PlusCircle size={20} className="text-[#ff7f50]" /> Add New
+                Subscription
               </>
             )}
           </h2>
           <p className="text-xs text-neutral-400 font-medium mt-0.5">
-            {editingItem ? `Updating details for ${editingItem.name}` : "Track recurring expenses and trial periods"}
+            {editingItem
+              ? `Updating details for ${editingItem.name}`
+              : "Track recurring expenses and trial periods"}
           </p>
         </div>
-        
-        <div className="flex items-center gap-2">
+
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           {editingItem && (
             <button
               type="button"
               onClick={handleResetForm}
-              className="text-xs flex items-center gap-1 text-neutral-300 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 px-3 py-2 rounded-xl font-semibold transition-all cursor-pointer"
+              className="w-full sm:w-auto flex justify-center items-center gap-1 text-neutral-300 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 px-4 py-2.5 rounded-xl font-semibold transition-all cursor-pointer"
             >
               <X size={14} /> Cancel
             </button>
@@ -160,10 +172,10 @@ export default function SubscriptionForm() {
           <button
             type="button"
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="text-xs flex items-center gap-1.5 text-orange-400 bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 px-3.5 py-2 rounded-xl font-semibold transition-all shadow-sm cursor-pointer"
+            className="w-full sm:w-auto flex justify-center items-center gap-1.5 text-xs text-orange-400 bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 px-4 py-2.5 rounded-xl font-semibold transition-all shadow-sm cursor-pointer"
           >
             <SlidersHorizontal size={14} />
-            {showAdvanced ? "Hide Advanced" : "Check Advanced Fields"}
+            {showAdvanced ? "Hide Advanced" : "Advanced Fields"}
             {showAdvanced ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
         </div>
@@ -180,7 +192,7 @@ export default function SubscriptionForm() {
               placeholder="e.g. Netflix, Spotify"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full glass-input px-4 py-3 text-sm"
+              className="w-full glass-input px-4 py-3 text-sm bg-neutral-900/50"
               required
             />
           </div>
@@ -195,8 +207,49 @@ export default function SubscriptionForm() {
               placeholder="9.99"
               value={cost}
               onChange={(e) => setCost(e.target.value)}
-              className="w-full glass-input px-4 py-3 text-sm"
+              className="w-full glass-input px-4 py-3 text-sm bg-neutral-900/50"
               required
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">
+              Billing Cycle
+            </label>
+            <select
+              value={billingCycle}
+              onChange={(e) => setBillingCycle(e.target.value)}
+              className="w-full glass-input px-4 py-3 text-sm cursor-pointer appearance-none outline-none focus:ring-2 focus:ring-orange-500/50 bg-[#121212] text-white border border-white/10"
+            >
+              <option value="Monthly" className="bg-[#121212] text-white p-2">
+                Monthly
+              </option>
+              <option value="Quarterly" className="bg-[#121212] text-white p-2">
+                Quarterly
+              </option>
+              <option
+                value="Semi-Annually"
+                className="bg-[#121212] text-white p-2"
+              >
+                Semi-Annually
+              </option>
+              <option value="Annually" className="bg-[#121212] text-white p-2">
+                Annually
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">
+              Renewal Date
+            </label>
+            <input
+              type="date"
+              value={renewalDate}
+              onChange={(e) => setRenewalDate(e.target.value)}
+              className="w-full glass-input px-4 py-3 text-sm cursor-pointer bg-neutral-900/50"
             />
           </div>
         </div>
@@ -209,10 +262,14 @@ export default function SubscriptionForm() {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full glass-input px-4 py-3 text-sm cursor-pointer"
+              className="w-full glass-input px-4 py-3 text-sm cursor-pointer appearance-none outline-none focus:ring-2 focus:ring-orange-500/50 bg-[#121212] text-white border border-white/10"
             >
               {categories.map((cat) => (
-                <option key={cat} value={cat} className="bg-neutral-900">
+                <option
+                  key={cat}
+                  value={cat}
+                  className="bg-[#121212] text-white p-2"
+                >
                   {cat}
                 </option>
               ))}
@@ -226,48 +283,56 @@ export default function SubscriptionForm() {
             <select
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
-              className="w-full glass-input px-4 py-3 text-sm cursor-pointer"
+              className="w-full glass-input px-4 py-3 text-sm cursor-pointer appearance-none outline-none focus:ring-2 focus:ring-orange-500/50 bg-[#121212] text-white border border-white/10"
             >
-              <option value="Credit Card" className="bg-neutral-900">Credit Card</option>
-              <option value="PayPal" className="bg-neutral-900">PayPal</option>
-              <option value="Apple Pay" className="bg-neutral-900">Apple Pay</option>
-              <option value="Bank Transfer" className="bg-neutral-900">Bank Transfer</option>
-              <option value="Crypto" className="bg-neutral-900">Crypto</option>
+              <option
+                value="Credit Card"
+                className="bg-[#121212] text-white p-2"
+              >
+                Credit Card
+              </option>
+              <option value="PayPal" className="bg-[#121212] text-white p-2">
+                PayPal
+              </option>
+              <option value="Apple Pay" className="bg-[#121212] text-white p-2">
+                Apple Pay
+              </option>
+              <option
+                value="Bank Transfer"
+                className="bg-[#121212] text-white p-2"
+              >
+                Bank Transfer
+              </option>
+              <option value="Crypto" className="bg-[#121212] text-white p-2">
+                Crypto
+              </option>
             </select>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">
-              Status
-            </label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-full glass-input px-4 py-3 text-sm cursor-pointer"
-            >
-              <option value="Active" className="bg-neutral-900">Active</option>
-              <option value="Paused" className="bg-neutral-900">Paused</option>
-              <option value="Cancelled" className="bg-neutral-900">Cancelled</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">
-              Renewal Date
-            </label>
-            <input
-              type="date"
-              value={renewalDate}
-              onChange={(e) => setRenewalDate(e.target.value)}
-              className="w-full glass-input px-4 py-3 text-sm cursor-pointer"
-            />
-          </div>
+        <div>
+          <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">
+            Status
+          </label>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="w-full glass-input px-4 py-3 text-sm cursor-pointer appearance-none outline-none focus:ring-2 focus:ring-orange-500/50 bg-[#121212] text-white border border-white/10"
+          >
+            <option value="Active" className="bg-[#121212] text-white p-2">
+              Active
+            </option>
+            <option value="Paused" className="bg-[#121212] text-white p-2">
+              Paused
+            </option>
+            <option value="Cancelled" className="bg-[#121212] text-white p-2">
+              Cancelled
+            </option>
+          </select>
         </div>
 
         {showAdvanced && (
-          <div className="mt-1 p-5 rounded-2xl bg-neutral-950/80 border border-orange-500/30 flex flex-col gap-4 animate-fadeIn shadow-inner">
+          <div className="mt-1 p-5 rounded-2xl bg-[#121212] border border-orange-500/30 flex flex-col gap-4 animate-fadeIn shadow-inner">
             <div className="text-xs font-bold text-orange-400 uppercase tracking-wider flex items-center gap-1.5">
               <SlidersHorizontal size={14} /> Advanced Configuration
             </div>
@@ -282,7 +347,7 @@ export default function SubscriptionForm() {
                   placeholder="e.g. Work, Family, AI"
                   value={tags}
                   onChange={(e) => setTags(e.target.value)}
-                  className="w-full glass-input px-3.5 py-2.5 text-xs"
+                  className="w-full glass-input px-3.5 py-2.5 text-xs bg-neutral-900/50"
                 />
               </div>
 
@@ -295,7 +360,7 @@ export default function SubscriptionForm() {
                   placeholder="e.g. email or hint"
                   value={passwordHint}
                   onChange={(e) => setPasswordHint(e.target.value)}
-                  className="w-full glass-input px-3.5 py-2.5 text-xs"
+                  className="w-full glass-input px-3.5 py-2.5 text-xs bg-neutral-900/50"
                 />
               </div>
             </div>
@@ -309,7 +374,7 @@ export default function SubscriptionForm() {
                 placeholder="Add any additional notes..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full glass-input px-3.5 py-2.5 text-xs resize-none"
+                className="w-full glass-input px-3.5 py-2.5 text-xs resize-none bg-neutral-900/50"
               />
             </div>
 
